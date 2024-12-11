@@ -1,0 +1,8 @@
+#ifndef lcd_states_included
+#define lcd_states_included
+
+void lcd_init();
+void lcd_update_time(unsigned int tenths);
+
+#endif
+

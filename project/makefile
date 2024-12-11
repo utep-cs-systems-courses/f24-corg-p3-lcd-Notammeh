@@ -1,0 +1,33 @@
+# Compiler and flags
+CC = msp430-gcc
+CFLAGS = -mmcu=msp430g2553 -Os -Wall
+
+# Source files and object files
+SRCS = main.c buzzer.c lcd_states.c led.c switches.c statemachine.c timer.c
+OBJS = $(SRCS:.c=.o)
+
+# Output executable
+TARGET = stopwatch.elf
+
+# Default target
+all: $(TARGET)
+
+# Link object files to create the executable
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+
+# Compile each source file into an object file
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Flash the program to the MSP430 board
+load: $(TARGET)
+	dslite --config=MSP430G2553.ccxml --load-image=$(TARGET) --run
+
+# Clean up build artifacts
+clean:
+	rm -f $(OBJS) $(TARGET)
+
+# Phony targets (not associated with real files)
+.PHONY: all clean load
+

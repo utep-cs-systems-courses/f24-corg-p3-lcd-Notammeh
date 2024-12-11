@@ -1,0 +1,28 @@
+#include <msp430.h>
+#include "led.h"
+
+// Declare the assembly function
+extern void toggle_led_asm();
+
+// Initialize the LED
+void led_init() {
+    P1DIR |= BIT6;  // Set P1.6 as output (LED pin)
+    P1OUT &= ~BIT6; // Turn LED off initially
+}
+
+// Turn the LED on
+void led_on() {
+    P1OUT |= BIT6;  // Set BIT6 to turn the LED on
+}
+
+// Turn the LED off
+void led_off() {
+    P1OUT &= ~BIT6; // Clear BIT6 to turn the LED off
+}
+
+// Toggle the LED using the assembly function
+void led_toggle() {
+    toggle_led_asm(); // Call the assembly function to toggle the LED
+
+}
+

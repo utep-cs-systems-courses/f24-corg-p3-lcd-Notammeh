@@ -1,0 +1,61 @@
+#include "statemachine.h"
+#include "buzzer.h"
+#include "led.h"
+#include "lcd_states.h"
+#include "timer.h"
+
+// Global state variable
+int state = STOPPED;
+
+// Advances to the next state
+void state_advance() {
+    switch (state) {
+    case STOPPED:
+        state = RUNNING;    // Move to RUNNING state
+        buzzer_beep_event(); // Short beep for state change
+        break;
+
+    case RUNNING:
+        state = RESET;      // Move to RESET state
+        buzzer_beep_reset(); // Distinct beep for reset
+        break;
+
+    case RESET:
+        state = STOPPED;    // Move to STOPPED state
+        buzzer_beep_event(); // Short beep for state change
+        break;
+
+    default:
+        state = STOPPED;    // Default to STOPPED state
+        break;
+    }
+}
+
+// Updates actions based on the current state
+void state_update() {
+    switch (state) {
+    case STOPPED:
+        // Turn off LED, stop timer
+        led_off();
+        timer_stop();
+        break;
+
+    case RUNNING:
+        // Turn on LED, start timer
+        led_on();
+        timer_start();
+        break;
+
+    case RESET:
+        // Turn off LED, reset timer, update LCD
+        led_off();
+        timer_reset();
+        lcd_update_time(0); // Display "00:00.0"
+        break;
+
+    default:
+        // Handle invalid states if needed
+        break;
+    }
+}
+

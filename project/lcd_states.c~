@@ -1,0 +1,22 @@
+#include "lcd_states.h"
+#include "lcdutils.h"
+#include "lcddraw.h"
+
+void lcd_update_time(unsigned int tenths) {
+    char time_str[9];
+    unsigned int minutes = tenths / 600;
+    unsigned int seconds = (tenths / 10) % 60;
+    unsigned int tenths_digit = tenths % 10;
+
+    // Format time string as MM:SS.T
+    time_str[0] = '0' + (minutes / 10);
+    time_str[1] = '0' + (minutes % 10);
+    time_str[3] = '0' + (seconds / 10);
+    time_str[4] = '0' + (seconds % 10);
+    time_str[6] = '0' + tenths_digit;
+
+    // Update display
+    drawString8x12(20, 20, "Stopwatch", COLOR_GREEN, COLOR_BLUE);
+    drawString8x12(20, 40, time_str, COLOR_WHITE, COLOR_BLUE);
+}
+

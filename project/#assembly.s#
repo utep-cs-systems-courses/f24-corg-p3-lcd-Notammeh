@@ -1,0 +1,9 @@
+    .section .text
+    .global toggle_led_asm
+
+toggle_led_asm:
+    mov.b &P1OUT, r15       ; Load P1OUT into r15
+    xor.b #BIT6, r15        ; Toggle BIT6 (LED pin)
+    mov.b r15, &P1OUT       ; Write back to P1OUT
+	ret                     ; Return to caller
+	

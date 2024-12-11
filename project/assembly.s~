@@ -1,0 +1,10 @@
+    .global _increment_time
+_increment_time:
+    push r5                  ; Save registers
+    mov r12, r5              ; Copy input argument
+    add #1, r5               ; Increment
+    mov r5, r12              ; Update result
+    pop r5                   ; Restore registers
+	ret                      ; Return
+
+	

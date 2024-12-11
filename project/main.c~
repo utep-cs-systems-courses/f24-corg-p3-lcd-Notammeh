@@ -1,0 +1,65 @@
+#include "lcd_states.h"     // Handles LCD updates
+#include "buzzer.h"         // Controls the buzzer
+#include "led.h"            // Manages LED states
+#include "switches.h"       // Handles button input
+#include "statemachine.h"   // Manages stopwatch states
+#include "timer.h"          // Handles time tracking
+
+// Global variables
+volatile unsigned int tenths = 0;   // Time in tenths of a second
+volatile unsigned char running = 0; // Stopwatch running state
+volatile unsigned char redrawScreen = 1; // Flag to indicate screen refresh needed
+
+// Main function
+void main() {
+    // Initialization
+    configureClocks();       // Set up system clocks
+    lcd_init();              // Initialize LCD
+    buzzer_init();           // Initialize buzzer
+    led_init();              // Initialize LEDs
+    switch_init();           // Initialize switches
+    enableWDTInterrupts();   // Enable watchdog timer interrupts
+
+    clearScreen(COLOR_BLUE); // Clear the LCD screen
+
+    // Main loop
+    while (1) {
+        // Refresh LCD if needed
+        if (redrawScreen) {
+            redrawScreen = 0;
+            lcd_update_time(tenths);  // Update time on the LCD
+        }
+
+        // LED feedback
+        if (running) {
+            led_on();  // Turn LED on while stopwatch is running
+        } else {
+            led_off(); // Turn LED off while stopwatch is stopped
+        }
+
+        __delay_cycles(50000); // Small delay to avoid flickering
+    }
+}
+
+// Watchdog Timer Interrupt (Tracks time)
+void __interrupt_vec(WDT_VECTOR) WDT() {
+    static int tickCount = 0;
+
+    // Update stopwatch time if running
+    if (running) {
+        tickCount++;
+        if (tickCount >= 25) {  // 25 WDT ticks = ~1 second (adjust if needed)
+            tenths++;           // Increment tenths of a second
+            redrawScreen = 1;   // Set flag to refresh LCD
+
+            // Play periodic beep every 5 seconds
+            if (tenths % 50 == 0) {
+                buzzer_periodic_beep();
+            }
+
+            tickCount = 0;
+        }
+    }
+}
+
+

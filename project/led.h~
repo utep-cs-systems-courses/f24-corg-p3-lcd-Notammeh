@@ -1,0 +1,9 @@
+#ifndef led_included
+#define led_included
+
+void led_init();
+void led_on();
+void led_off();
+
+#endif
+
