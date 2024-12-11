@@ -1,40 +1,16 @@
-# Compiler and flags
-CC = msp430-gcc
-CFLAGS = -mmcu=msp430g2553 -Os -Wall
+all:
+	(cd timerLib; make install)
+	(cd lcdLib; make install)
+	(cd wakedemo; make)
 
-# Source files and object files
-SRCS = main.c buzzer.c lcd_states.c led.c switches.c statemachine.c timer.c assembly.s
-OBJS = $(SRCS:.c=.o)
-
-# Output executable
-TARGET = stopwatch.elf
-
-# Default target
-all: $(TARGET)
-
-# Link object files to create the executable
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
-
-# Compile each source file into an object file
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-# Assemble assembly file
-%.o: %.s
-	$(CC) $(CFLAGS) -c $< -o $@
-
-# Flash the program to the MSP430 board
-load: $(TARGET)
-	dslite --config=MSP430G2553.ccxml --load-image=$(TARGET) --run
-
-# Debug the program
-debug: $(TARGET)
-	dslite --config=MSP430G2553.ccxml --load-image=$(TARGET) --debug
-
-# Clean up build artifacts
+doc:
+	rm -rf doxygen_docs
+	doxygen Doxyfile
 clean:
-	rm -f $(OBJS) $(TARGET)
+	(cd timerLib; make clean)
+	(cd lcdLib; make clean)
+	(cd wakedemo; make clean)
+	rm -rf lib h
+	rm -rf doxygen_docs/*
 
-# Phony targets (not associated with real files)
-.PHONY: all clean load debug
+
