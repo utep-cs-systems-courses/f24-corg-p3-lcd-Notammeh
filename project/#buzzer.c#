@@ -1,10 +1,9 @@
-x#include <msp430.h>
+#include <msp430.h>
 #include "libTimer.h"
 #include "buzzer.h"
 #include "led.h"
 
-void buzzer_init()
-{
+void buzzer_init(){
   /*
      Direct timer A output "TA0.1" to P2.6.
 
@@ -17,13 +16,9 @@ void buzzer_init()
       Also: P2.6 direction must be output
   */
   timerAUpmode(); /* used to drive speaker */
-
   P2SEL2 &= ~(BIT6 | BIT7);
-
   P2SEL &= ~BIT7;
-
   P2SEL |= BIT6;
-
   P2DIR = BIT6; /* enable output to speaker (P2.6) */
 }
 
@@ -33,19 +28,11 @@ void buzzer_set_period(short cycles) /* buzzer clock = 2MHz.  (period of 1k resu
   CCR1 = cycles >> 1; /* one half cycle */
 }
 
-void musica()
-
-{
-
-  
+void musica(){
   int notes[] = {C6, C6, D6, C6, D6, E6, C6, C6, D6, C6, G6, D6, C6, C6, C7, A6, D6, E6, D6};
   int durations[] = {500, 500, 1000, 1000, 1000, 2000, 500, 500, 1000, 1000, 1000, 2000, 500, 500, 1000, 1000, 1000, 1000, 2000}; 
-
   int total_notes = sizeof(notes) / sizeof(notes[0]);
-  for (int i = 0; i < total_notes; i++)
-
-    {
-
+  for (int i = 0; i < total_notes; i++){
       buzzer_set_period(notes[i]);
 
       __delay_cycles(2500000);
@@ -57,8 +44,6 @@ void musica()
 }
 
 void musica2(){
-
-  
   int jingle[] = {C5, E5, G5, E5, C5, E5, G5, E5, A4, C5, E5, C5, A4, A4, C5, A4};
   int totalNotes =sizeof(jingle)/sizeof(jingle[0]);//this is used to get the number of notes 
   for(int i=0; i<totalNotes;i++){//used to iterate through array
@@ -84,22 +69,16 @@ void musica3(){
   }
   buzzer_set_period(0);//this is used to make sure the buzzer turns off
 
-}//end of song4
+}//end of musica3
 
-void musica_update()
-
-{
-
+void musica_update(){
   static int count = 0;
-
   count++;
-
-  if (count == 5)
-    {
+  if (count == 5){
       musica2();
-
       count = 0;
     }
 }
+
 
 

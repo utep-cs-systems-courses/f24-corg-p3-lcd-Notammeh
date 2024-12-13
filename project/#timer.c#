@@ -20,3 +20,4 @@ void timer_reset() {
     tenths = 0;
     lcd_update_time(tenths);
 }
+
