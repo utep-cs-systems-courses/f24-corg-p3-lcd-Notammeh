@@ -1,24 +1,33 @@
-# makfile configuration
-COMMON_OBJECTS  = main.o
-CPU             = msp430g2553
-CFLAGS          = -mmcu=${CPU} -I../h
-LDFLAGS		= -L/opt/ti/msp430_gcc/include
+# Makefile configuration
 
-#switch the compiler (for the internal make rules)
-CC              = msp430-elf-gcc
-AS              = msp430-elf-as
+CPU                     = msp430g2553
 
+CFLAGS                  = -mmcu=${CPU} -Os -I../h -I../lcdLib -I../timerLib
 
-all: combined.elf
+LDFLAGS                 = -L../lib -L/opt/ti/msp430_gcc/include/
 
-#additional rules for files
+# Switch the compiler (for the internal make rules)
 
-combined.elf: ${COMMON_OBJECTS} buzzer.o lcd_states.o switches.o led.o timer.o state_machines.o timer.o ../lib/libTimer.a
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^
+CC                      = msp430-elf-gcc
+AS                      = msp430-elf-gcc -mmcu=${CPU} -c
 
-load: combined.elf
+# Object files
+COMMON_OBJECTS          = main.o switches.o statemachine.o buzzer.o led.o lcd_states.o ../lcdLib/font-8x12.o
+
+all: toy.elf
+
+# Rule to build toy.elf
+toy.elf: ${COMMON_OBJECTS} ../lib/libTimer.a ../lib/libLcd.a
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^ -lTimer -lLcd
+
+# Rule to build font-8x12.o
+../lcdLib/font-8x12.o: ../lcdLib/font-8x12.c
+	${CC} ${CFLAGS} -c -o $@ $<
+
+# Load rule
+load: toy.elf
 	msp430loader.sh $^
 
+# Clean rule
 clean:
 	rm -f *.o *.elf
-

@@ -1,4 +1,5 @@
 #ifndef buzzer_included
+
 #define buzzer_included
 #define C6 1108.73
 #define F5 739.99
@@ -13,25 +14,14 @@
 #define F7  2793.83 
 #define G7  3135.96  
 
-
-#define C5 523
-#define E5 659
-#define G5 784
-#define A4 440
-
 void buzzer_init();
 
 void buzzer_set_period(short cycles);
 
 void musica();
 
-void musica2();
-
-void musica3();
-
 void musica_update();
 
 
 
 #endif
-

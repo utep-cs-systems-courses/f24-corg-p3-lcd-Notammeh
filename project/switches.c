@@ -1,49 +1,62 @@
 #include <msp430.h>
+
 #include "switches.h"
+
 #include "statemachine.h"
 
-// Flag to indicate a switch was pressed
-char switch_state_down = 0; 
 
-// Update interrupt sense for switches
-static char switch_update_interrupt_sense() {
-    char p2val = P2IN;
-    // Update switch interrupt to detect changes
-    P2IES |= (p2val & SWITCHES);  // If switch is up, sense down
-    P2IES &= (p2val | ~SWITCHES); // If switch is down, sense up
-    return p2val;
+char switch_state_down;
+static char switch_update_interrupt_sense(){
+  char p2val = P2IN;
+  P2IES |= (p2val & SWITCHES);  // if switch up, sense falling edge
+  P2IES &= (p2val | ~SWITCHES); // if switch down, sense rising edge
+  return p2val;
 }
 
-// Initialize switches
-void switch_init() {
-    P2REN |= SWITCHES;  // Enable resistors for switches
-    P2IE |= SWITCHES;   // Enable interrupts for switches
-    P2OUT |= SWITCHES;  // Pull-up resistors
-    P2DIR &= ~SWITCHES; // Set switches as input
-    switch_update_interrupt_sense();
+void switch_init(){
+  P2REN |= SWITCHES;  /* enables resistors for switches */
+  P2IE |= SWITCHES;   /* enable interrupts from switches */
+  P2OUT |= SWITCHES;  /* pull-ups for switches */
+  P2DIR &= ~SWITCHES; /* set switches' bits for input */
+  switch_update_interrupt_sense();
 }
 
-// Interrupt handler for switches
-void switch_interrupt_handler() {
-    char p2val = switch_update_interrupt_sense();
-    char sw1 = !(p2val & SW1); // Check if SW1 is pressed
-    char sw2 = !(p2val & SW2); // Check if SW2 is pressed
 
-    if (sw1) {
-        state_advance();     // Advance the state machine
-        switch_state_down = 1;
-    } else if (sw2) {
-        state = RESET;       // Set state to RESET
-        switch_state_down = 1;
+void switch_interrupt_handler(){
+  char p2val = switch_update_interrupt_sense();
+  char sw1 = (p2val & SW1) ? 0 : SW1;
+  char sw2 = (p2val & SW2) ? 0 : SW2;
+  char sw3 = (p2val & SW3) ? 0 : SW3;
+  char sw4 = (p2val & SW4) ? 0 : SW4;
+  if (sw1){
+    state = 1;
+    switch_state_down = 1;
+    }
+  else if (sw2) {
+      state = 2;
+      switch_state_down = 1;
+    }
+  else if (sw3){
+    state = 3;
+    switch_state_down = 1;
     }
 
-    __delay_cycles(5000); // Debounce delay
-}
-
-// Interrupt vector for Port 2
-void __interrupt_vec(PORT2_VECTOR) Port_2() {
-    if (P2IFG & SWITCHES) {         // Check if a button caused the interrupt
-        P2IFG &= ~SWITCHES;         // Clear pending interrupts
-        switch_interrupt_handler(); // Call the handler
+  else if (sw4){
+      state = 4;
+      switch_state_down = 1;
     }
 }
+
+void __interrupt_vec(PORT2_VECTOR) Port_2(){
+
+  if (P2IFG & SWITCHES){          // Check if any switch was pressed
+
+      P2IFG &= ~SWITCHES;         // Clear interrupt flag
+
+      switch_interrupt_handler(); // Handle switch interrupt
+
+    }
+
+}
+
+

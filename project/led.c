@@ -1,27 +1,117 @@
 #include <msp430.h>
+
 #include "led.h"
 
-// Declare the assembly function
-extern void toggle_led_asm();
+#include "statemachine.h"
 
-// Initialize the LED
-void led_init() {
-    P1DIR |= BIT6;  // Set P1.6 as output (LED pin)
-    P1OUT &= ~BIT6; // Turn LED off initially
+#include "buzzer.h"
+
+
+
+
+void led_init()
+
+{
+
+  P1DIR |= LEDS;
+
+  P1OUT &= ~LED_RED;
+
+  P1OUT &= ~LED_GREEN;
+
 }
 
-// Turn the LED on
-void led_on() {
-    P1OUT |= BIT6;  // Set BIT6 to turn the LED on
+
+
+void both_leds_on()
+
+{
+
+  P1OUT |= LED_RED;
+
+  P1OUT |= LED_GREEN;
+
 }
 
-// Turn the LED off
-void led_off() {
-    P1OUT &= ~BIT6; // Clear BIT6 to turn the LED off
+
+
+void red_led_on()
+
+{
+
+  P1OUT |= LED_RED;
+
+  P1OUT &= ~LED_GREEN;
+
 }
 
-// Toggle the LED using the assembly function
-void led_toggle() {
-    toggle_led_asm(); // Call the assembly function to toggle the LED
+
+
+void green_led_on()
+
+{
+
+  P1OUT |= LED_GREEN;
+
+  P1OUT &= ~LED_RED;
+
+}
+
+
+
+int led_on = 0;
+
+
+
+
+
+void siren_update()
+
+{
+
+  if (led_on){
+
+    P1OUT &= ~LED_GREEN;
+
+    P1OUT |= LED_RED;
+
+    buzzer_set_period(1000);
+
+    led_on = 0;
+
+  }else{
+
+    P1OUT |= LED_GREEN;
+
+    P1OUT &= ~LED_RED;
+
+    buzzer_set_period(2000);
+
+    led_on = 1;
+
+  }
+
+}
+
+
+
+void siren()
+
+{
+
+  static int count = 0;
+
+  count++;
+
+  if (count == 100)
+
+    {
+
+      siren_update();
+
+      count = 0;
+
     }
+
+}
 
